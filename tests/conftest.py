@@ -7,9 +7,9 @@ import pytest
 def driver():
     options = UiAutomator2Options()
     options.platform_name = "Android"
-    options.platform_version = "14"  # Android sürümü
-    options.device_name = "emulator-5554"  # Emulator cihaz adı
-    options.app = "C:\\Users\\huawei\\Downloads\\mda-2.2.0-25.apk"  # APK dosyasının yolu
+    options.platform_version = "14"
+    options.device_name = "emulator-5554"
+    options.app = "C:\\Users\\huawei\\Downloads\\mda-2.2.0-25.apk"
     options.automation_name = "UiAutomator2"
 
     # Appium server'a bağlanmak için WebDriver'ı başlatıyoruz
