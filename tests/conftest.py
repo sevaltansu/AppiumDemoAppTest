@@ -16,5 +16,6 @@ def driver():
     driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
     driver.implicitly_wait(10)
     yield driver
+
     driver.quit()
 
