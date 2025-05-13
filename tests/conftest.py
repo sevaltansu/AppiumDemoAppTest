@@ -12,7 +12,7 @@ def driver():
     options.app = "C:\\Users\\huawei\\Downloads\\mda-2.2.0-25.apk"
     options.automation_name = "UiAutomator2"
 
-    # Appium server'a bağlanmak için WebDriver'ı başlatıyoruz
+
     driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
     driver.implicitly_wait(10)
     yield driver
