@@ -17,3 +17,5 @@ def driver():
     driver.implicitly_wait(10)
     yield driver
 
+    hello
+
