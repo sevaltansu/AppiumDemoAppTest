@@ -46,7 +46,7 @@ class TestPaymentPage:
          driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/address1ET").send_keys(
              "Atatürk Caddesi 123")
          driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/cityET").send_keys("Ankara")
-         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/zipET").send_keys("06000")
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/zipET").send_keys("0600")
          driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/countryET").send_keys("Türkiye")
 
          # Ödeme yap
