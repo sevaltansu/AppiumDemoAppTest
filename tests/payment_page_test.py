@@ -1,41 +1,73 @@
 import time
+import pytest
 from appium.webdriver.common.appiumby import AppiumBy
-from tests.utils import login
+from tests.utils import login, add_cart
 
 
 class TestPaymentPage:
-    def test_payment_page(self,driver):
-        first_product = driver.find_element(AppiumBy.XPATH,
-                                            '//androidx.recyclerview.widget.RecyclerView[@content-desc="Displays all products of catalog"]/android.view.ViewGroup[1]')
-        first_product.click()
-        add_cart_btn = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/cartBt")
-        add_cart_btn.click()
-        time.sleep(2)
-        driver.find_element(AppiumBy.ID,"com.saucelabs.mydemoapp.android:id/cartIV").click()
-        time.sleep(2)
-        driver.find_element(AppiumBy.ID,"com.saucelabs.mydemoapp.android:id/cartBt").click()
-        #giriş yap
-        login(driver)
-        time.sleep(2)
-        fields = {
-            "Full Name": "com.saucelabs.mydemoapp.android:id/fullNameET",
-            "Address Line": "com.saucelabs.mydemoapp.android:id/address1ET",
-            "City": "com.saucelabs.mydemoapp.android:id/cityET",
-            "Zip Code": "com.saucelabs.mydemoapp.android:id/zipET",
-            "Country": "com.saucelabs.mydemoapp.android:id/countryET"
-        }
 
-        filled_data = {
-            "Full Name": "Seval Tansu",
-            "Address Line": "Yıldız Mah.",
-            "City": "İstanbul",
-            "Zip Code": "34000",
-            "Country": "Turkey"
-        }
-        for field, element_id in fields.items():
-            input_element = driver.find_element(AppiumBy.ID, element_id)
-            input_element.send_keys(filled_data[field])
-            time.sleep(0.5)
-        continue_button = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/paymentBtn")
-        continue_button.click()
-        time.sleep(2)
+     @pytest.mark.parametrize("name,address,city,zipcode,country,error,expected_error_id", [
+            ("seval", "Ankara", "AAnkara", "", "Türkiye", "Please provide your zip",
+             "com.saucelabs.mydemoapp.android:id/zipErrorTV"),
+            ("", "ankara", "AAnkara", "00", "Türkiye", "Please provide your full name.",
+             "com.saucelabs.mydemoapp.android:id/fullNameErrorTV")
+      ])
+     def test_invalid_payment(self, driver, name, address, city, zipcode, country, error, expected_error_id):
+         add_cart(driver)
+         time.sleep(2)
+         login(driver)
+         time.sleep(2)
+         name_input = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/fullNameET")
+         name_input.send_keys(name)
+         address_input = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/address1ET")
+         address_input.send_keys(address)
+         city_input = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/cityET")
+         city_input.send_keys(city)
+         zipcode_input = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/zipET")
+         zipcode_input.send_keys(zipcode)
+         country_input = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/countryET")
+         country_input.send_keys(country)
+         payment_btn = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/paymentBtn")
+         payment_btn.click()
+
+         # Hata mesajı kontrolü
+         error_text = driver.find_element(AppiumBy.ID, expected_error_id).text
+         assert error_text == error
+
+     def test_valid_payment(self, driver):
+         # Ürün ekleme
+         add_cart(driver)
+         time.sleep(2)
+         # Login
+         login(driver)
+
+         # Formu doldur
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/fullNameET").send_keys("Seval")
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/address1ET").send_keys(
+             "Atatürk Caddesi 123")
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/cityET").send_keys("Ankara")
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/zipET").send_keys("06000")
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/countryET").send_keys("Türkiye")
+
+         # Ödeme yap
+         driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/paymentBtn").click()
+         time.sleep(2)
+         # Başarılı mesaj kontrolü
+         success_msg = driver.find_element(AppiumBy.ID, "com.saucelabs.mydemoapp.android:id/enterPaymentMethodTV").text
+         assert "Enter a payment method" in success_msg
+
+         #kart bilgileri
+         card_name=driver.find_element(AppiumBy.XPATH,'//android.widget.EditText[@resource-id="com.saucelabs.mydemoapp.android:id/nameET"]')
+         card_name.send_keys("Seval")
+         card_number=driver.find_element(AppiumBy.ID,"com.saucelabs.mydemoapp.android:id/cardNumberET")
+         card_number.send_keys("123456")
+         date=driver.find_element(AppiumBy.ID,"com.saucelabs.mydemoapp.android:id/expirationDateET")
+         date.send_keys("0606")
+         code=driver.find_element(AppiumBy.ID,"com.saucelabs.mydemoapp.android:id/securityCodeET")
+         code.send_keys("345")
+         #review order
+         driver.find_element(AppiumBy.ID,"com.saucelabs.mydemoapp.android:id/paymentBtn").click()
+
+
+
+
